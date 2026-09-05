@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#16235f">
-<title>NOVA GRID — V 1.003</title>
+<title>NOVA GRID — V 1.004</title>
 <style>
 :root{
  --bg1:#172964;--bg2:#36206d;--bg3:#681c69;
@@ -96,6 +96,26 @@ body:before{
 body.clearFlash:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:85;background:radial-gradient(circle at center,rgba(255,255,255,.16),rgba(74,231,255,.06) 35%,transparent 70%);animation:screenFlash .35s ease-out forwards}
 @keyframes screenFlash{from{opacity:1}to{opacity:0}}
 
+
+/* V 1.004 — Mobile Performance */
+html.lowPower body:before{animation:none!important}
+html.lowPower .mark{animation:none!important;box-shadow:0 0 18px rgba(80,239,255,.25)}
+html.lowPower .hero:after{display:none!important}
+html.lowPower .hero h1{animation:none!important}
+html.lowPower .boardFrame{animation:none!important;box-shadow:0 16px 38px rgba(20,0,70,.28),0 0 22px rgba(72,220,255,.12)}
+html.lowPower .cell.filled{box-shadow:inset 0 3px rgba(255,255,255,.28),inset 0 -3px rgba(0,0,0,.16),0 0 10px var(--c)}
+html.lowPower .block{box-shadow:inset 0 3px rgba(255,255,255,.3),inset 0 -3px rgba(0,0,0,.16),0 0 8px var(--c)}
+html.lowPower .pieceCard{box-shadow:inset 0 1px rgba(255,255,255,.08),0 6px 16px rgba(16,0,60,.15)}
+html.lowPower .clearWave{box-shadow:0 0 12px #5eefff}
+html.lowPower .spark{box-shadow:0 0 7px var(--spark)}
+html.lowPower .clearText{text-shadow:none}
+html.lowPower .boardFrame.clearImpact{animation:impactLite .24s ease!important}
+@keyframes impactLite{40%{transform:scale(1.008);filter:brightness(1.14)}}
+html.lowPower body.clearFlash:after{background:rgba(255,255,255,.055)}
+@media (max-width:700px) and (hover:none){
+  .hero,.nav{backdrop-filter:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -106,7 +126,7 @@ body.clearFlash:after{content:"";position:fixed;inset:0;pointer-events:none;z-in
 </header>
 
 <section class="screen active" id="game">
- <div class="hero"><div class="eyebrow">SAISON 1 • V 1.002</div><h1>Entre dans la Grille Nova</h1><p>Place les fragments, complète les lignes et déclenche les combos.</p></div>
+ <div class="hero"><div class="eyebrow">SAISON 1 • V 1.004</div><h1>Entre dans la Grille Nova</h1><p>Place les fragments, complète les lignes et déclenche les combos.</p></div>
  <div class="stats"><div class="stat"><small>SCORE</small><strong id="score">0</strong></div><div class="stat"><small>RECORD</small><strong id="best">0</strong></div><div class="stat"><small>NIVEAU</small><strong id="level">1</strong></div></div>
  <div class="boardFrame" id="frame"><div class="boardShell"><div class="board" id="board"></div></div></div>
  <div class="combo" id="combo"></div>
@@ -117,7 +137,9 @@ body.clearFlash:after{content:"";position:fixed;inset:0;pointer-events:none;z-in
 
 <section class="screen" id="news">
  <div class="hero"><div class="eyebrow">ACTUALITÉS</div><h1>Flux Nova</h1><p>Toutes les mises à jour du jeu.</p></div>
- <div class="card"><span class="version">V 1.003</span><h2>✨ Satisfying Clear</h2>
+ <div class="card"><span class="version">V 1.004</span><h2>📱 Mobile Performance</h2>
+<p>Optimisation Android : glisser-déposer plus fluide, effets adaptés automatiquement aux appareils faibles et suppression d’un observateur DOM trop coûteux.</p></div>
+<div class="card"><span class="version">V 1.003</span><h2>✨ Satisfying Clear</h2>
 <p>Correction du glisser-déposer qui pouvait rester bloqué, nettoyage automatique du badge Netlify et nouvelle animation spectaculaire lors de la destruction des lignes.</p></div>
 <div class="card"><span class="version">V 1.002</span><h2>🌈 Color Surge</h2><p>Interface éclaircie, plateau plus coloré et reconstruction complète du système de fragments pour corriger leur disparition et le placement.</p></div>
  <div class="card"><span class="version">V 1.001</span><h3>⚙️ Placement Update</h3><p>Premières améliorations du contrôle tactile et du glisser-déposer.</p></div>
@@ -146,6 +168,7 @@ body.clearFlash:after{content:"";position:fixed;inset:0;pointer-events:none;z-in
 <div class="modalBg" id="over"><div class="modal"><div class="eyebrow">FIN DE PARTIE</div><h2>GRILLE SATURÉE</h2><div class="big" id="final">0</div><p>Plus aucun fragment ne peut être placé.</p><button class="primary" id="again">REJOUER</button></div></div>
 
 <script>
+const CURRENT_VERSION="1.004";
 const SIZE=8;
 const COLORS=["#22F1FF","#3B82FF","#655CFF","#A84CFF","#FF3FD1","#FF477B","#FF7439","#FFB629","#F4F14A","#52F27B","#00E7B0"];
 const SHAPES=[
@@ -156,6 +179,12 @@ const SHAPES=[
 ];
 const $=id=>document.getElementById(id);
 const boardEl=$("board"),trayEl=$("tray");
+const coarsePointer=matchMedia("(pointer:coarse)").matches;
+const lowMemory=(navigator.deviceMemory&&navigator.deviceMemory<=4);
+const lowCpu=(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
+const lowPower=coarsePointer&&(lowMemory||lowCpu||innerWidth<430);
+document.documentElement.classList.toggle("lowPower",!!lowPower);
+let dragRAF=0,pendingDragEvent=null;
 let board=[],pieces=[],selected=-1,score=0,combo=0,drag=null,clearing=false,suppressNextClick=false;
 let data=load();
 function baseData(){return{best:0,games:0,lines:0,blocks:0,xp:0,sound:true}}
@@ -259,6 +288,8 @@ function cleanupDrag(cancelled=false){
  window.removeEventListener("pointercancel",cancelDrag);
  window.removeEventListener("blur",cancelDrag);
  const d=drag; drag=null;
+ if(dragRAF){cancelAnimationFrame(dragRAF);dragRAF=0}
+ pendingDragEvent=null;
  if(d.clone&&d.clone.isConnected)d.clone.remove();
  renderBoard();
  if(cancelled)renderTray();
@@ -285,11 +316,18 @@ function startDrag(e,i,card){
 function moveDrag(e){
  if(!drag)return;
  e.preventDefault?.();
- if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>7)drag.moved=true;
- const y=e.pointerType==="touch"?e.clientY-70:e.clientY;
- drag.clone.style.left=e.clientX-drag.clone.offsetWidth/2+"px";
- drag.clone.style.top=y-drag.clone.offsetHeight/2+"px";
- preview(drag.i,getGrid(e.clientX,y,pieces[drag.i]))
+ pendingDragEvent={clientX:e.clientX,clientY:e.clientY,pointerType:e.pointerType};
+ if(dragRAF)return;
+ dragRAF=requestAnimationFrame(()=>{
+  dragRAF=0;
+  if(!drag||!pendingDragEvent)return;
+  const ev=pendingDragEvent; pendingDragEvent=null;
+  if(Math.hypot(ev.clientX-drag.startX,ev.clientY-drag.startY)>7)drag.moved=true;
+  const y=ev.pointerType==="touch"?ev.clientY-70:ev.clientY;
+  drag.clone.style.left=ev.clientX-drag.clone.offsetWidth/2+"px";
+  drag.clone.style.top=y-drag.clone.offsetHeight/2+"px";
+  preview(drag.i,getGrid(ev.clientX,y,pieces[drag.i]));
+ });
 }
 function preview(i,g){
  renderBoard();
@@ -371,7 +409,8 @@ function animateClear(rows,cols,bonus){
   document.body.appendChild(wave);
   setTimeout(()=>wave.remove(),650);
 
-  for(let n=0;n<46;n++){
+  const sparkCount=lowPower?14:34;
+  for(let n=0;n<sparkCount;n++){
    const s=document.createElement("i");
    s.className="spark";
    const colors=["#51efff","#7a77ff","#d35cff","#ff68c7","#ffe76b"];
@@ -382,7 +421,7 @@ function animateClear(rows,cols,bonus){
    s.style.setProperty("--dy",((Math.random()-.65)*210)+"px");
    s.style.animationDelay=(Math.random()*90)+"ms";
    document.body.appendChild(s);
-   setTimeout(()=>s.remove(),900);
+   setTimeout(()=>s.remove(),lowPower?620:820);
   }
 
   const text=document.createElement("div");
@@ -420,20 +459,27 @@ $("again").onclick=resetBoard;
 $("soundBtn").onclick=()=>{$("soundBtn").textContent=$("soundBtn").textContent==="🔊"?"🔇":"🔊"};
 resetBoard();
 
+(function syncCurrentVersion(){
+ document.querySelectorAll(".hero .eyebrow").forEach(el=>{
+   if(/SAISON 1/i.test(el.textContent||"")) el.textContent="SAISON 1 • V "+CURRENT_VERSION;
+ });
+ document.title="NOVA GRID — V "+CURRENT_VERSION;
+})();
+
+
 (function removeNetlifyBranding(){
- function clean(root=document){
-  root.querySelectorAll?.('[class*="netlify-badge" i],[class*="powered-by-netlify" i],a[href*="netlify.com"]').forEach(el=>{
-   const text=(el.textContent||"").toLowerCase();
-   if(text.includes("netlify")||el.matches('[class*="netlify-badge" i],[class*="powered-by-netlify" i]'))el.remove();
+ function clean(){
+  document.querySelectorAll('[class*="netlify-badge" i],[class*="powered-by-netlify" i],a[href*="netlify.com"]').forEach(el=>{
+   const t=(el.textContent||"").toLowerCase();
+   if(t.includes("netlify"))el.remove();
   });
-  root.querySelectorAll?.('div,span,p,a').forEach(el=>{
+  [...document.querySelectorAll("div,span,p,a")].forEach(el=>{
    const t=(el.textContent||"").trim().toLowerCase();
    if(t==="powered by netlify"||t==="power by netlify")el.remove();
   });
  }
  clean();
- new MutationObserver(muts=>muts.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)clean(n)})))
-  .observe(document.documentElement,{childList:true,subtree:true});
+ setTimeout(clean,1200);
 })();
 
 </script>
