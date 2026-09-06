@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#16235f">
-<title>NOVA GRID — V 1.004</title>
+<title>NOVA GRID — V 1.005</title>
 <style>
 :root{
  --bg1:#172964;--bg2:#36206d;--bg3:#681c69;
@@ -116,6 +116,32 @@ html.lowPower body.clearFlash:after{background:rgba(255,255,255,.055)}
   .hero,.nav{backdrop-filter:none!important}
 }
 
+
+/* V 1.005 — Hyper Smooth */
+.pieceCard{transition:transform .14s cubic-bezier(.2,1.35,.35,1),filter .14s,box-shadow .14s,border-color .14s}
+.pieceCard:not(.used){animation:trayFloat 2.8s ease-in-out infinite}
+.pieceCard:nth-child(2){animation-delay:-.9s}.pieceCard:nth-child(3){animation-delay:-1.7s}
+@keyframes trayFloat{50%{transform:translateY(-3px)}}
+.pieceCard.grabbed{transform:scale(.96)!important;filter:brightness(.85);border-color:rgba(255,255,255,.08)}
+.dragPiece{position:fixed!important;z-index:220!important;pointer-events:none!important;will-change:transform;transform-origin:center;filter:drop-shadow(0 18px 20px rgba(0,0,0,.42)) drop-shadow(0 0 18px rgba(82,241,255,.32));animation:dragLift .13s cubic-bezier(.2,1.5,.35,1) both}
+@keyframes dragLift{from{opacity:.65;scale:.78;rotate:-3deg}to{opacity:1;scale:1.18;rotate:0deg}}
+.cell.preview{outline:3px solid rgba(255,255,255,.95)!important;outline-offset:-2px;filter:brightness(1.55) saturate(1.25);animation:previewPulse .48s ease-in-out infinite alternate}
+@keyframes previewPulse{to{transform:scale(.94);filter:brightness(1.9) saturate(1.4)}}
+.cell.snapHint{box-shadow:inset 0 0 0 2px rgba(104,246,255,.36),0 0 18px rgba(80,238,255,.18)}
+.cell.justPlaced{animation:placeBounce .34s cubic-bezier(.14,1.75,.28,1)!important}
+@keyframes placeBounce{0%{transform:scale(.35) rotate(-8deg);filter:brightness(2.2)}58%{transform:scale(1.16) rotate(2deg)}78%{transform:scale(.95)}100%{transform:scale(1)}}
+.placeRing{position:fixed;z-index:205;pointer-events:none;width:26px;height:26px;border:3px solid #8cf7ff;border-radius:50%;transform:translate(-50%,-50%) scale(.2);opacity:.9;box-shadow:0 0 22px #52efff;animation:placeRing .42s ease-out forwards}
+@keyframes placeRing{to{transform:translate(-50%,-50%) scale(3.5);opacity:0}}
+.dragSpark{position:fixed;z-index:210;pointer-events:none;width:5px;height:5px;border-radius:50%;background:var(--ds);box-shadow:0 0 10px var(--ds);animation:dragSpark .42s ease-out forwards}
+@keyframes dragSpark{to{opacity:0;transform:translate(var(--sx),var(--sy)) scale(.1)}}
+.stat.pop strong{animation:scorePop .28s cubic-bezier(.15,1.6,.35,1)}
+@keyframes scorePop{50%{transform:scale(1.18);filter:brightness(1.8)}}
+.tray.refresh{animation:trayRefresh .36s cubic-bezier(.18,1.45,.35,1)}
+@keyframes trayRefresh{from{opacity:0;transform:translateY(16px) scale(.96)}}
+.boardFrame.placeImpact{animation:placeImpact .22s ease!important}
+@keyframes placeImpact{40%{transform:scale(1.008);filter:brightness(1.12)}}
+html.lowPower .pieceCard:not(.used){animation:none} html.lowPower .cell.preview{animation:none} html.lowPower .dragPiece{filter:drop-shadow(0 10px 12px rgba(0,0,0,.3))} html.lowPower .dragSpark{display:none}
+
 </style>
 </head>
 <body>
@@ -126,7 +152,7 @@ html.lowPower body.clearFlash:after{background:rgba(255,255,255,.055)}
 </header>
 
 <section class="screen active" id="game">
- <div class="hero"><div class="eyebrow">SAISON 1 • V 1.004</div><h1>Entre dans la Grille Nova</h1><p>Place les fragments, complète les lignes et déclenche les combos.</p></div>
+ <div class="hero"><div class="eyebrow">SAISON 1 • V 1.005</div><h1>Entre dans la Grille Nova</h1><p>Place les fragments, complète les lignes et déclenche les combos.</p></div>
  <div class="stats"><div class="stat"><small>SCORE</small><strong id="score">0</strong></div><div class="stat"><small>RECORD</small><strong id="best">0</strong></div><div class="stat"><small>NIVEAU</small><strong id="level">1</strong></div></div>
  <div class="boardFrame" id="frame"><div class="boardShell"><div class="board" id="board"></div></div></div>
  <div class="combo" id="combo"></div>
@@ -137,7 +163,7 @@ html.lowPower body.clearFlash:after{background:rgba(255,255,255,.055)}
 
 <section class="screen" id="news">
  <div class="hero"><div class="eyebrow">ACTUALITÉS</div><h1>Flux Nova</h1><p>Toutes les mises à jour du jeu.</p></div>
- <div class="card"><span class="version">V 1.004</span><h2>📱 Mobile Performance</h2>
+ <div class="card"><span class="version">V 1.005</span><h2>⚡ Hyper Smooth</h2><p>Déplacement entièrement retravaillé : suivi ultra fluide, snapping plus simple, animations de pose, traînée lumineuse et interactions beaucoup plus rapides.</p></div><div class="card"><span class="version">V 1.004</span><h2>📱 Mobile Performance</h2>
 <p>Optimisation Android : glisser-déposer plus fluide, effets adaptés automatiquement aux appareils faibles et suppression d’un observateur DOM trop coûteux.</p></div>
 <div class="card"><span class="version">V 1.003</span><h2>✨ Satisfying Clear</h2>
 <p>Correction du glisser-déposer qui pouvait rester bloqué, nettoyage automatique du badge Netlify et nouvelle animation spectaculaire lors de la destruction des lignes.</p></div>
@@ -168,7 +194,7 @@ html.lowPower body.clearFlash:after{background:rgba(255,255,255,.055)}
 <div class="modalBg" id="over"><div class="modal"><div class="eyebrow">FIN DE PARTIE</div><h2>GRILLE SATURÉE</h2><div class="big" id="final">0</div><p>Plus aucun fragment ne peut être placé.</p><button class="primary" id="again">REJOUER</button></div></div>
 
 <script>
-const CURRENT_VERSION="1.004";
+const CURRENT_VERSION="1.005";
 const SIZE=8;
 const COLORS=["#22F1FF","#3B82FF","#655CFF","#A84CFF","#FF3FD1","#FF477B","#FF7439","#FFB629","#F4F14A","#52F27B","#00E7B0"];
 const SHAPES=[
@@ -185,7 +211,7 @@ const lowCpu=(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
 const lowPower=coarsePointer&&(lowMemory||lowCpu||innerWidth<430);
 document.documentElement.classList.toggle("lowPower",!!lowPower);
 let dragRAF=0,pendingDragEvent=null;
-let board=[],pieces=[],selected=-1,score=0,combo=0,drag=null,clearing=false,suppressNextClick=false;
+let board=[],pieces=[],selected=-1,score=0,combo=0,drag=null,clearing=false,suppressNextClick=false,lastDragSpark=0;
 let data=load();
 function baseData(){return{best:0,games:0,lines:0,blocks:0,xp:0,sound:true}}
 function load(){try{return Object.assign(baseData(),JSON.parse(localStorage.getItem("novaGrid_1002")||"{}"))}catch(e){return baseData()}}
@@ -223,7 +249,7 @@ function newPieces(){
  setTimeout(checkGameOver,60);
 }
 function renderTray(){
- trayEl.innerHTML="";
+ trayEl.innerHTML=""; trayEl.classList.remove("refresh"); void trayEl.offsetWidth; trayEl.classList.add("refresh");
  pieces.forEach((p,i)=>{
   const card=document.createElement("div");
   card.className="pieceCard"+(p.used?" used":"")+(selected===i?" selected":"");
@@ -259,9 +285,7 @@ function cellClick(x,y){
  if(clearing||selected<0||pieces[selected].used)return;
  const p=pieces[selected];
  const maxX=Math.max(...p.shape.map(v=>v[0])),maxY=Math.max(...p.shape.map(v=>v[1]));
- const gx=x-Math.floor(maxX/2),gy=y-Math.floor(maxY/2);
- if(canPlace(p,gx,gy)){place(selected,gx,gy)}
- else flashBad(p,gx,gy)
+ let gx=x-Math.floor(maxX/2),gy=y-Math.floor(maxY/2); if(!canPlace(p,gx,gy)&&canPlace(p,x,y)){gx=x;gy=y} if(canPlace(p,gx,gy)){place(selected,gx,gy)} else flashBad(p,gx,gy)
 }
 function flashBad(p,gx,gy){
  p.shape.forEach(([dx,dy])=>{
@@ -282,85 +306,24 @@ function getGrid(clientX,clientY,p){
  }
 }
 function cleanupDrag(cancelled=false){
- if(!drag)return;
- window.removeEventListener("pointermove",moveDrag);
- window.removeEventListener("pointerup",endDrag);
- window.removeEventListener("pointercancel",cancelDrag);
- window.removeEventListener("blur",cancelDrag);
- const d=drag; drag=null;
- if(dragRAF){cancelAnimationFrame(dragRAF);dragRAF=0}
- pendingDragEvent=null;
- if(d.clone&&d.clone.isConnected)d.clone.remove();
- renderBoard();
- if(cancelled)renderTray();
+ if(!drag)return; window.removeEventListener("pointermove",moveDrag); window.removeEventListener("pointerup",endDrag); window.removeEventListener("pointercancel",cancelDrag); window.removeEventListener("blur",cancelDrag); if(dragRAF){cancelAnimationFrame(dragRAF);dragRAF=0} pendingDragEvent=null; const d=drag;drag=null; d.card?.classList.remove("grabbed"); if(d.clone&&d.clone.isConnected)d.clone.remove(); renderBoard(); if(cancelled)renderTray();
 }
 function startDrag(e,i,card){
- if(clearing)return;
- if(e.pointerType==="mouse"&&e.button!==0)return;
- e.preventDefault();
- selected=i;renderTray();
- const source=trayEl.children[i]?.querySelector(".pieceGrid");
- if(!source)return;
- const clone=source.cloneNode(true);
- clone.style.position="fixed";clone.style.zIndex="200";clone.style.pointerEvents="none";
- clone.style.filter="drop-shadow(0 18px 20px rgba(0,0,0,.5))";
- clone.style.transform="scale(1.12)";
- document.body.appendChild(clone);
- drag={i,clone,pointerType:e.pointerType,startX:e.clientX,startY:e.clientY,moved:false,grid:null,ok:false};
- moveDrag(e);
- window.addEventListener("pointermove",moveDrag,{passive:false});
- window.addEventListener("pointerup",endDrag);
- window.addEventListener("pointercancel",cancelDrag);
- window.addEventListener("blur",cancelDrag);
+ if(clearing)return; if(e.pointerType==="mouse"&&e.button!==0)return; e.preventDefault(); selected=i; card.classList.add("grabbed"); const source=card.querySelector(".pieceGrid"); if(!source)return; const clone=source.cloneNode(true); clone.classList.add("dragPiece"); document.body.appendChild(clone); const r=clone.getBoundingClientRect(); drag={i,card,clone,pointerType:e.pointerType,startX:e.clientX,startY:e.clientY,moved:false,grid:null,ok:false,w:r.width,h:r.height}; positionDrag(e.clientX,e.clientY,e.pointerType); window.addEventListener("pointermove",moveDrag,{passive:false}); window.addEventListener("pointerup",endDrag); window.addEventListener("pointercancel",cancelDrag); window.addEventListener("blur",cancelDrag);
 }
-function moveDrag(e){
- if(!drag)return;
- e.preventDefault?.();
- pendingDragEvent={clientX:e.clientX,clientY:e.clientY,pointerType:e.pointerType};
- if(dragRAF)return;
- dragRAF=requestAnimationFrame(()=>{
-  dragRAF=0;
-  if(!drag||!pendingDragEvent)return;
-  const ev=pendingDragEvent; pendingDragEvent=null;
-  if(Math.hypot(ev.clientX-drag.startX,ev.clientY-drag.startY)>7)drag.moved=true;
-  const y=ev.pointerType==="touch"?ev.clientY-70:ev.clientY;
-  drag.clone.style.left=ev.clientX-drag.clone.offsetWidth/2+"px";
-  drag.clone.style.top=y-drag.clone.offsetHeight/2+"px";
-  preview(drag.i,getGrid(ev.clientX,y,pieces[drag.i]));
- });
-}
-function preview(i,g){
- renderBoard();
- const p=pieces[i],ok=canPlace(p,g.x,g.y);
- p.shape.forEach(([dx,dy])=>{
-  const x=g.x+dx,y=g.y+dy;
-  if(x>=0&&x<SIZE&&y>=0&&y<SIZE){
-   const c=boardEl.children[y*SIZE+x];
-   c.classList.add(ok?"preview":"bad");
-   if(ok)c.style.setProperty("--c",p.color)
-  }
- });
- if(drag){drag.grid=g;drag.ok=ok}
-}
-function cancelDrag(){
- if(!drag)return;
- suppressNextClick=drag.moved;
- cleanupDrag(true);
-}
-function endDrag(){
- if(!drag)return;
- const {i,grid,ok,moved}=drag;
- suppressNextClick=moved;
- cleanupDrag(false);
- if(ok&&grid)place(i,grid.x,grid.y);
- else renderTray();
-}
+function positionDrag(x,y,pointerType){ if(!drag)return; const liftedY=pointerType==="touch"?y-82:y-8; drag.clone.style.transform=`translate3d(${x-drag.w/2}px,${liftedY-drag.h/2}px,0) scale(1.16)`; }
+function moveDrag(e){ if(!drag)return; e.preventDefault?.(); pendingDragEvent={clientX:e.clientX,clientY:e.clientY,pointerType:e.pointerType}; if(dragRAF)return; dragRAF=requestAnimationFrame(()=>{ dragRAF=0; if(!drag||!pendingDragEvent)return; const ev=pendingDragEvent;pendingDragEvent=null; if(Math.hypot(ev.clientX-drag.startX,ev.clientY-drag.startY)>4)drag.moved=true; positionDrag(ev.clientX,ev.clientY,ev.pointerType); const ty=ev.pointerType==="touch"?ev.clientY-82:ev.clientY-8; preview(drag.i,getGrid(ev.clientX,ty,pieces[drag.i])); if(!lowPower&&performance.now()-lastDragSpark>42){lastDragSpark=performance.now();spawnDragSpark(ev.clientX,ty,pieces[drag.i].color)} }); }
+function spawnDragSpark(x,y,color){ const s=document.createElement("i"); s.className="dragSpark"; s.style.left=x+"px"; s.style.top=y+"px"; s.style.setProperty("--ds",color); s.style.setProperty("--sx",((Math.random()-.5)*28)+"px"); s.style.setProperty("--sy",(14+Math.random()*22)+"px"); document.body.appendChild(s); setTimeout(()=>s.remove(),440); }
+function preview(i,g){ renderBoard(); const p=pieces[i],ok=canPlace(p,g.x,g.y); p.shape.forEach(([dx,dy])=>{const x=g.x+dx,y=g.y+dy;if(x>=0&&x<SIZE&&y>=0&&y<SIZE){const c=boardEl.children[y*SIZE+x];c.classList.add(ok?"preview":"bad");if(ok)c.style.setProperty("--c",p.color)}}); if(ok){const cx=Math.max(0,Math.min(SIZE-1,g.x)),cy=Math.max(0,Math.min(SIZE-1,g.y));boardEl.children[cy*SIZE+cx]?.classList.add("snapHint")} if(drag){drag.grid=g;drag.ok=ok} }
+function cancelDrag(){ if(!drag)return; suppressNextClick=drag.moved; cleanupDrag(true); }
+function endDrag(){ if(!drag)return; const {i,grid,ok,moved}=drag; suppressNextClick=moved; cleanupDrag(false); if(ok&&grid)place(i,grid.x,grid.y); else renderTray(); }
 async function place(i,gx,gy){
  if(clearing)return;
  const p=pieces[i];if(!p||p.used||!canPlace(p,gx,gy))return;
  p.shape.forEach(([dx,dy])=>board[gy+dy][gx+dx]=p.color);
  p.used=true;selected=-1;score+=p.shape.length;data.blocks+=p.shape.length;
- renderBoard();renderTray();update();
+ renderBoard(); p.shape.forEach(([dx,dy],idx)=>setTimeout(()=>boardEl.children[(gy+dy)*SIZE+(gx+dx)]?.classList.add("justPlaced"),idx*22)); renderTray();update();
+ const scoreStat=$("score").closest(".stat");scoreStat.classList.remove("pop");void scoreStat.offsetWidth;scoreStat.classList.add("pop"); $("frame").classList.add("placeImpact");setTimeout(()=>$("frame").classList.remove("placeImpact"),240); spawnPlaceRing(gx,gy,p);
 
  const full=getFullLines();
  if(full.rows.length||full.cols.length){
@@ -382,6 +345,7 @@ async function place(i,gx,gy){
  data.best=Math.max(data.best,score);save();renderBoard();renderTray();update();
  if(pieces.every(v=>v.used))setTimeout(newPieces,220);else setTimeout(checkGameOver,70)
 }
+function spawnPlaceRing(gx,gy,p){ const r=boardEl.getBoundingClientRect(),cs=getComputedStyle(boardEl),gap=parseFloat(cs.gap)||5; const pl=parseFloat(cs.paddingLeft)||0,pt=parseFloat(cs.paddingTop)||0,pr=parseFloat(cs.paddingRight)||0,pb=parseFloat(cs.paddingBottom)||0; const cw=(r.width-pl-pr-gap*7)/8,ch=(r.height-pt-pb-gap*7)/8; const mx=Math.max(...p.shape.map(v=>v[0])),my=Math.max(...p.shape.map(v=>v[1])); const cx=r.left+pl+(gx+mx/2+.5)*cw+(gx+mx/2)*gap,cy=r.top+pt+(gy+my/2+.5)*ch+(gy+my/2)*gap; const ring=document.createElement("i");ring.className="placeRing";ring.style.left=cx+"px";ring.style.top=cy+"px";document.body.appendChild(ring);setTimeout(()=>ring.remove(),460); }
 function getFullLines(){
  const rows=[],cols=[];
  for(let y=0;y<SIZE;y++)if(board[y].every(Boolean))rows.push(y);
